@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    {{- include "go-pkgsite.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "go-pkgsite.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "go-pkgsite.labels" . | nindent 8 }}
+    spec:
+      containers:
+      - name: frontend
+        image: mxkh/go-pkgsite
+        imagePullPolicy: Always
+        args: [ -bypass_license_check ]
+        ports:
+        - name: http
+          containerPort: 80
+        startupProbe:
+          httpGet: { port: http }
+          periodSeconds: 1
+          failureThreshold: 10
+        livenessProbe:
+          httpGet: { port: http }
+          failureThreshold: 3
+        readinessProbe:
+          httpGet: { port: http }
+          failureThreshold: 1

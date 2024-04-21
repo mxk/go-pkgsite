@@ -1,0 +1,6 @@
+# ingressHost is the Ingress resource hostname. The Ingress resource will not be
+# created if this is empty.
+ingressHost: localhost
+
+# ingressPath is the Ingress resource path prefix.
+ingressPath: /

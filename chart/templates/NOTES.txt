@@ -1,0 +1,6 @@
+{{- if .Values.ingressHost }}
+Server URL: http://{{ .Values.ingressHost }}{{ .Values.ingressPath }}
+{{- end }}
+
+To expose the server on http://localhost:8000/ run:
+kubectl -n={{ .Release.Namespace }} port-forward service/{{ .Release.Name }} 8000:http

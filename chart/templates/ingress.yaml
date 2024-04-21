@@ -1,0 +1,19 @@
+{{- if .Values.ingressHost }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    {{- include "go-pkgsite.labels" . | nindent 4 }}
+spec:
+  rules:
+  - host: {{ .Values.ingressHost }}
+    http:
+      paths:
+      - path: {{ $.Values.ingressPath }}
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ $.Release.Name }}
+            port: { name: http }
+{{- end }}
