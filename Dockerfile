@@ -4,13 +4,15 @@ FROM golang as build
 ARG PKGSITE_VERSION=latest
 WORKDIR /pkgsite
 SHELL ["/bin/bash", "-o", "errexit", "-o", "pipefail", "-c"]
+RUN CGO_ENABLED=0 GOBIN=$PWD go install -trimpath -ldflags='-s -w' -tags=postgres \
+	github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 RUN CGO_ENABLED=0 GOBIN=$PWD go install -trimpath -ldflags='-s -w' \
 	golang.org/x/pkgsite/cmd/frontend@${PKGSITE_VERSION} \
-    golang.org/x/pkgsite/devtools/cmd/db@${PKGSITE_VERSION} \
-    golang.org/x/pkgsite/devtools/cmd/seeddb@${PKGSITE_VERSION}
+	golang.org/x/pkgsite/devtools/cmd/db@${PKGSITE_VERSION} \
+	golang.org/x/pkgsite/devtools/cmd/seeddb@${PKGSITE_VERSION}
 RUN mod=$(go env GOMODCACHE) && \
-    echo $mod/golang.org/x/pkgsite@* | cut -d@ -f2 > VERSION && \
-	mv $mod/golang.org/x/pkgsite@*/{static,third_party} . && \
+	echo $mod/golang.org/x/pkgsite@* | cut -d@ -f2 > VERSION && \
+	mv $mod/golang.org/x/pkgsite@*/{migrations,static,third_party} . && \
 	rm */*.go
 
 FROM gcr.io/distroless/static
