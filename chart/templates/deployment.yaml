@@ -17,7 +17,9 @@ spec:
       - name: frontend
         image: mxkh/go-pkgsite
         imagePullPolicy: Always
-        args: [ -bypass_license_check ]
+        args:
+        - -bypass_license_check
+        - -proxy_url=http://{{ with .Subcharts.athens }}{{ include "fullname" . }}:{{ .Values.service.servicePort }}{{ end }}/
         ports:
         - name: http
           containerPort: 80

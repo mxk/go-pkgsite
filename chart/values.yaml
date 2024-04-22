@@ -4,3 +4,58 @@ ingressHost: localhost
 
 # ingressPath is the Ingress resource path prefix.
 ingressPath: /
+
+# defaultProxy is the default proxy server used to download Go modules.
+defaultProxy: https://proxy.golang.org
+
+# secretName is the name of the Secret resource used to store config values for
+# the Athens proxy. All aliases must be set manually when overriding this value.
+secretName: &secretName go-pkgsite-secret
+
+# private defines private repositories. For example:
+#   private:
+#   - host: internal.domain.com
+#     username: myusername
+#     password: mytoken
+private: [ ]
+
+# athens is the configuration for the athens-proxy chart.
+athens:
+  configEnvVars:
+  - name: ATHENS_GONOSUM_PATTERNS
+    valueFrom:
+      secretKeyRef:
+        name: *secretName
+        key: ATHENS_GONOSUM_PATTERNS
+  - name: ATHENS_DOWNLOAD_MODE
+    valueFrom:
+      secretKeyRef:
+        name: *secretName
+        key: ATHENS_DOWNLOAD_MODE
+  - name: GOPRIVATE
+    valueFrom:
+      secretKeyRef:
+        name: *secretName
+        key: ATHENS_GONOSUM_PATTERNS
+
+  # netrc support is required for dealing with nested GitLab repos:
+  # https://github.com/golang/go/issues/26232
+  # https://gitlab.com/gitlab-org/gitlab/-/issues/36354
+  # https://gitlab.com/gitlab-org/gitlab-foss/-/issues/1337
+  # https://gitlab.com/gitlab-org/gitlab-foss/-/issues/30785
+  # https://gitlab.com/gitlab-org/gitlab-foss/-/issues/37832
+  # https://gitlab.com/gitlab-org/gitlab-foss/-/issues/65681
+  netrc:
+    enabled: true
+    existingSecret: *secretName
+
+  # gitconfig is used to provide credentials for private repos. Unfortunately,
+  # only .netrc files currently work. This method would be preferable because it
+  # allows per-path access tokens, whereas .netrc is per-domain.
+  # gitconfig:
+  #   enabled: true
+  #   secretName: *secretName
+
+  # https://github.com/gomods/athens-charts/issues/69
+  # serviceAccount:
+  #   create: false

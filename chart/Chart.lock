@@ -1,0 +1,6 @@
+dependencies:
+- name: athens-proxy
+  repository: https://gomods.github.io/athens-charts
+  version: 0.9.4
+digest: sha256:53d4193ea5bf703ddc29c4100e2b58ac1321be41580ca6e2a0867524d1f4724e
+generated: "2024-04-21T16:48:34.7866395-04:00"

@@ -10,7 +10,7 @@ spec:
   - host: {{ .Values.ingressHost }}
     http:
       paths:
-      - path: {{ $.Values.ingressPath }}
+      - path: {{ required "Must specify ingressPath" $.Values.ingressPath }}
         pathType: Prefix
         backend:
           service:

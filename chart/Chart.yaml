@@ -4,3 +4,9 @@ description: Private pkg.go.dev documentation server
 version: 0.1.0
 home: https://github.com/mxk/go-pkgsite
 sources: [ https://github.com/mxk/go-pkgsite ]
+
+dependencies:
+- name: athens-proxy
+  version: ~0.9.4
+  repository: https://gomods.github.io/athens-charts
+  alias: athens
