@@ -27,3 +27,7 @@ private:
 ```
 
 To deploy: `helm install go-pkgsite chart -f values.yaml`
+
+As of 2024-04-22, [pkgsite] does not handle `.netrc` credentials, leading to [invalid links to source files][60299].
+
+[60299]: https://github.com/golang/go/issues/60299

@@ -59,3 +59,8 @@ athens:
   # https://github.com/gomods/athens-charts/issues/69
   # serviceAccount:
   #   create: false
+
+postgresql:
+  primary:
+    persistence:
+      enabled: false
