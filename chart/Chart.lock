@@ -1,9 +1,9 @@
 dependencies:
 - name: athens-proxy
   repository: https://gomods.github.io/athens-charts
-  version: 0.9.4
+  version: 0.10.0
 - name: postgresql
   repository: oci://registry-1.docker.io/bitnamicharts
-  version: 15.2.5
-digest: sha256:767a2b45dc19579706982496142d689424ca1f0947cfa6a864a6aadf83ac9f87
-generated: "2024-04-22T02:28:24.5692722-04:00"
+  version: 15.2.8
+digest: sha256:0d2a8f66aa8baa04eaaa60080d2538aa627c493bbd77e05befc38a6ab080f2b4
+generated: "2024-05-03T15:49:53.3606007-04:00"
