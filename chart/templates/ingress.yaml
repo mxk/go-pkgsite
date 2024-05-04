@@ -6,6 +6,11 @@ metadata:
   labels:
     {{- include "go-pkgsite.labels" . | nindent 4 }}
 spec:
+  {{- if .Values.tlsKey }}
+  tls:
+  - hosts: [ {{ .Values.ingressHost }} ]
+    secretName: {{ .Values.secretName }}
+  {{- end }}
   rules:
   - host: {{ .Values.ingressHost }}
     http:

@@ -5,6 +5,12 @@ ingressHost: localhost
 # ingressPath is the Ingress resource path prefix.
 ingressPath: /
 
+# tlsKey is the ingress TLS key.
+tlsKey:
+
+# tlsCrt is the ingress TLS certificate.
+tlsCrt:
+
 # defaultProxy is the default proxy server used to download Go modules.
 defaultProxy: https://proxy.golang.org
 
@@ -56,9 +62,8 @@ athens:
   #   enabled: true
   #   secretName: *secretName
 
-  # https://github.com/gomods/athens-charts/issues/69
-  # serviceAccount:
-  #   create: false
+  serviceAccount:
+    create: false
 
 postgresql:
   primary:
