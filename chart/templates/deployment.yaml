@@ -13,46 +13,72 @@ spec:
       labels:
         {{- include "go-pkgsite.labels" . | nindent 8 }}
     spec:
+      volumes:
+      - name: netrc
+        secret:
+          secretName: {{ .Values.secretName }}
+          items:
+          - key: .netrc
+            path: .netrc
+      {{- if .Values.seed }}
+      - name: seed
+        configMap:
+          name: {{ .Release.Name }}
+      {{- end }}
+
       initContainers:
+
+      # Wait until PostgreSQL is ready
       - name: wait-for-db
         image: {{ include "postgresql.v1.image" .Subcharts.postgresql }}
         env:
-        - name: PGHOST
-          value: &pgHost "{{ include "postgresql.v1.primary.fullname" .Subcharts.postgresql }}"
-        - name: PGPASSWORD
-          valueFrom: &pgPass
-            secretKeyRef:
-              name: {{ include "postgresql.v1.secretName" .Subcharts.postgresql }}
-              key: {{ include "postgresql.v1.adminPasswordKey" .Subcharts.postgresql }}
-        command: [ 'sh', '-c', 'until pg_isready -U postgres; do echo waiting for database; sleep 1; done;' ]
+        {{- include "go-pkgsite.pgenv" . | nindent 8 }}
+        command: [ sh, -c, 'until pg_isready -U postgres; do echo waiting for database; sleep 1; done;' ]
+
+      # Create DB if it doesn't exist
       - name: create-db
         image: mxkh/go-pkgsite
-        env: &dbEnv
-        - name: GO_DISCOVERY_DATABASE_HOST
-          value: *pgHost
-        - name: GO_DISCOVERY_DATABASE_PASSWORD
-          valueFrom: *pgPass
-        command: [ './db', 'create' ]
+        env:
+        {{- include "go-pkgsite.env" . | nindent 8 }}
+        command: [ ./db, create ]
+
+      # Migrate DB schema
       - name: migrate-db
         image: mxkh/go-pkgsite
         env:
-          *dbEnv
+        {{- include "go-pkgsite.env" . | nindent 8 }}
         command:
         - ./migrate
         - -source=file:migrations
         - -database=postgresql://postgres:$(GO_DISCOVERY_DATABASE_PASSWORD)@$(GO_DISCOVERY_DATABASE_HOST):5432/discovery-db?sslmode=disable
         - up
+
+      {{- if .Values.seed }}
+      # Pre-populate packages
+      - name: seed-db
+        image: mxkh/go-pkgsite
+        env:
+        {{- include "go-pkgsite.env" . | nindent 8 }}
+        volumeMounts:
+        - name: seed
+          mountPath: /seed
+          readOnly: true
+        command: [ ./seeddb, -bypass_license_check, -keep_going, -refetch, -seed=/seed/seed.txt ]
+      {{- end }}
+
       containers:
       - name: frontend
         image: mxkh/go-pkgsite
         imagePullPolicy: Always
         env:
-          *dbEnv
-        args:
-        - -bypass_license_check
-        - -host=:80
-        - -local
-        - -proxy_url=http://{{ with .Subcharts.athens }}{{ include "fullname" . }}:{{ .Values.service.servicePort }}{{ end }}/
+        {{- if .Values.private }}
+        - name: HTTP_PROXY
+          value: http://localhost:8080
+        - name: HTTPS_PROXY
+          value: http://localhost:8080
+        {{- end }}
+        {{- include "go-pkgsite.env" . | nindent 8 }}
+        command: [ ./frontend, -bypass_license_check, -host=:80, -local, -proxy_url=$(GO_MODULE_PROXY_URL) ]
         ports:
         - name: http
           containerPort: 80
@@ -66,3 +92,26 @@ spec:
         readinessProbe:
           httpGet: { port: http }
           failureThreshold: 1
+
+      {{- if .Values.private }}
+      - name: netrc-proxy
+        image: mxkh/go-pkgsite
+        imagePullPolicy: Always
+        env:
+        {{- include "go-pkgsite.env" . | nindent 8 }}
+        volumeMounts:
+        - name: netrc
+          mountPath: /netrc
+          readOnly: true
+        command: [ ./proxy, -host=:8080, -netrc=/netrc/.netrc, -verbose ]
+        startupProbe:
+          httpGet: { port: 8080 }
+          periodSeconds: 1
+          failureThreshold: 30
+        livenessProbe:
+          httpGet: { port: 8080 }
+          failureThreshold: 3
+        readinessProbe:
+          httpGet: { port: 8080 }
+          failureThreshold: 1
+      {{- end }}

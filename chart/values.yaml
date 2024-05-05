@@ -16,6 +16,8 @@ defaultProxy: https://proxy.golang.org
 
 # secretName is the name of the Secret resource used to store config values for
 # the Athens proxy. All aliases must be set manually when overriding this value.
+# This is fixed because we can't use templates in values.yaml files and the
+# secret name has to be passed in environment variables to athens.
 secretName: &secretName go-pkgsite-secret
 
 # private defines private repositories. For example:
@@ -24,6 +26,9 @@ secretName: &secretName go-pkgsite-secret
 #     username: myusername
 #     password: mytoken
 private: [ ]
+
+# seed specifies package names passed to seeddb.
+seed: [ ] # TODO: std@latest crashes PostgreSQL due to OOM error
 
 # athens is the configuration for the athens-proxy chart.
 athens:
@@ -67,5 +72,7 @@ athens:
 
 postgresql:
   primary:
+    # JIT consumes too much memory when seeddb is doing its thing
+    extendedConfiguration: jit = off
     persistence:
       enabled: false

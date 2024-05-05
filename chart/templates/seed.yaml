@@ -1,0 +1,13 @@
+{{- if .Values.seed }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    {{- include "go-pkgsite.labels" . | nindent 4 }}
+data:
+  seed.txt: |
+    {{- range .Values.seed }}
+    {{ . }}
+    {{- end }}
+{{- end }}
