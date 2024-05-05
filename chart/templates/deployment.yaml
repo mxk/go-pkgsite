@@ -103,7 +103,7 @@ spec:
         - name: netrc
           mountPath: /netrc
           readOnly: true
-        command: [ ./proxy, -host=:8080, -netrc=/netrc/.netrc, -verbose ]
+        command: [ ./proxy, -host=:8080, -netrc=/netrc/.netrc ]
         startupProbe:
           httpGet: { port: 8080 }
           periodSeconds: 1
