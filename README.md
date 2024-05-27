@@ -34,9 +34,9 @@ private:
 
 To deploy: `helm upgrade -i go-pkgsite chart -f values.yaml`
 
-### TLS
+### Ingress TLS
 
-TLS key and certificate can be configured via: `helm upgrade -i go-pkgsite chart -f values.yaml --set-file tlsKey=key.pem,tlsCrt=crt.pem`
+Ingress TLS key and certificate can be configured via: `helm upgrade -i go-pkgsite chart -f values.yaml --set-file tlsKey=key.pem,tlsCrt=crt.pem`
 
 ## Known Issues
 
@@ -45,13 +45,3 @@ TLS key and certificate can be configured via: `helm upgrade -i go-pkgsite chart
 As of May 2024, [pkgsite] does not handle `.netrc` credentials, leading to [invalid links to source files][60299]. To work around this (without forking pkgsite), the chart runs a custom proxy server that intercepts all `?go-get=1` requests from `frontend` and injects the appropriate credentials. This has been tested with a private GitLab instance, but may cause problems for other installations.
 
 [60299]: https://github.com/golang/go/issues/60299
-
-### stdlib links
-
-The database must be manually populated with stdlib data in order to resolve those links. This is normally handled by pkgsite's `seeddb` command, but it seems to crash the PostgreSQL server due to `OOMKilled` error. It's not clear if this just requires a ton of RAM or if this is a configuration problem.
-
-### Athens chart
-
-This chart is not using the [official Athens chart][athens] because it does not provide a way of specifying a custom config file, and there is no way to use templates in environment variable values. This complicated the overall service configuration.
-
-[athens]: https://github.com/gomods/athens-charts
