@@ -28,6 +28,8 @@ seed: [std@latest]
 # https://hub.docker.com/r/gomods/athens/tags
 athensVersion: v0.14.0
 
+# postgresql is the PostgreSQL chart config:
+# https://github.com/bitnami/charts/tree/main/bitnami/postgresql
 postgresql:
   primary:
     resources:
@@ -38,3 +40,5 @@ postgresql:
       enabled: true
       whenScaled: Delete
       whenDeleted: Delete
+  serviceAccount:
+    create: false
