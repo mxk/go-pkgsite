@@ -19,6 +19,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: {{ $.Release.Name }}
+            name: {{ $.Release.Name }}-pkgsite
             port: {name: http}
 {{- end }}
