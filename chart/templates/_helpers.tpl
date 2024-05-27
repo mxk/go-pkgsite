@@ -1,10 +1,10 @@
-{{- define "go-pkgsite.selectorLabels" -}}
+{{- define "go-pkgsite.selectors" -}}
 app.kubernetes.io/name: {{ .Chart.Name }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{- define "go-pkgsite.labels" -}}
-{{ include "go-pkgsite.selectorLabels" . }}
+{{ include "go-pkgsite.selectors" . }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 {{- end }}
@@ -31,5 +31,5 @@ valueFrom:
 - name: GO_DISCOVERY_LOG_LEVEL
   value: info
 - name: GO_MODULE_PROXY_URL
-  value: http://{{ with .Subcharts.athens }}{{ include "fullname" . }}:{{ .Values.service.servicePort }}{{ end }}/
+  value: http://{{ .Release.Name }}-athens/
 {{- end }}

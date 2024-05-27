@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-athens
+  labels:
+    {{- include "go-pkgsite.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "go-pkgsite.selectors" . | nindent 6 }}
+      app.kubernetes.io/component: athens
+  template:
+    metadata:
+      labels:
+        {{- include "go-pkgsite.labels" . | nindent 8 }}
+        app.kubernetes.io/component: athens
+    spec:
+      containers:
+      - name: athens
+        image: 'gomods/athens:{{ .Values.athensVersion }}'
+        ports:
+        - name: http
+          containerPort: 80
+        volumeMounts:
+        - name: config
+          mountPath: /config
+          readOnly: true
+        - name: storage
+          mountPath: /var/lib/athens
+        startupProbe:
+          httpGet: {path: /healthz, port: http}
+          periodSeconds: 1
+          failureThreshold: 60
+        livenessProbe:
+          httpGet: {path: /healthz, port: http}
+          failureThreshold: 3
+        readinessProbe:
+          httpGet: {path: /readyz, port: http}
+          failureThreshold: 1
+
+      volumes:
+      - name: config
+        projected:
+          sources:
+          - configMap:
+              name: {{ .Release.Name }}-athens
+          - secret:
+              name: {{ .Release.Name }}
+              items: [{key: .netrc, path: .netrc}]
+      - name: storage
+        emptyDir: {}

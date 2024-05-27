@@ -8,8 +8,8 @@ metadata:
 spec:
   {{- if .Values.tlsKey }}
   tls:
-  - hosts: [ {{ .Values.ingressHost }} ]
-    secretName: {{ .Values.secretName }}
+  - hosts: [{{ .Values.ingressHost }}]
+    secretName: {{ .Release.Name }}
   {{- end }}
   rules:
   - host: {{ .Values.ingressHost }}
@@ -20,5 +20,5 @@ spec:
         backend:
           service:
             name: {{ $.Release.Name }}
-            port: { name: http }
+            port: {name: http}
 {{- end }}

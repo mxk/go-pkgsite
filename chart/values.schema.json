@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "type": "object",
+  "properties": {
+    "ingressHost": {
+      "type": "string",
+      "description": "Ingress object hostname"
+    },
+    "ingressPath": {
+      "type": "string",
+      "description": "Ingress object path prefix"
+    },
+    "tlsKey": {
+      "type": "string",
+      "description": "PEM-encoded Ingress TLS key"
+    },
+    "tlsCrt": {
+      "type": "string",
+      "description": "PEM-encoded Ingress TLS key"
+    },
+    "defaultProxy": {
+      "type": "string",
+      "description": "Default proxy server"
+    },
+    "private": {
+      "type": "array",
+      "description": "Private repositories",
+      "items": {
+        "type": "object",
+        "properties": {
+          "host": {
+            "type": "string",
+            "description": "Private hostname"
+          },
+          "username": {
+            "type": "string",
+            "description": "Username"
+          },
+          "password": {
+            "type": "string",
+            "description": "Password"
+          }
+        }
+      }
+    },
+    "seed": {
+      "type": "array",
+      "description": "Package names passed to seeddb",
+      "items": {
+        "type": "string"
+      }
+    },
+    "athensVersion": {
+      "type": "string",
+      "description": "gomods/athens Docker image tag"
+    }
+  }
+}

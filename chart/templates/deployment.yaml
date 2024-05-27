@@ -1,52 +1,38 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ .Release.Name }}-pkgsite
   labels:
     {{- include "go-pkgsite.labels" . | nindent 4 }}
 spec:
   selector:
     matchLabels:
-      {{- include "go-pkgsite.selectorLabels" . | nindent 6 }}
+      {{- include "go-pkgsite.selectors" . | nindent 6 }}
+      app.kubernetes.io/component: pkgsite
   template:
     metadata:
       labels:
         {{- include "go-pkgsite.labels" . | nindent 8 }}
+        app.kubernetes.io/component: pkgsite
     spec:
-      volumes:
-      - name: netrc
-        secret:
-          secretName: {{ .Values.secretName }}
-          items:
-          - key: .netrc
-            path: .netrc
-      {{- if .Values.seed }}
-      - name: seed
-        configMap:
-          name: {{ .Release.Name }}
-      {{- end }}
-
       initContainers:
 
       # Wait until PostgreSQL is ready
       - name: wait-for-db
         image: {{ include "postgresql.v1.image" .Subcharts.postgresql }}
-        env:
-        {{- include "go-pkgsite.pgenv" . | nindent 8 }}
-        command: [ sh, -c, 'until pg_isready -U postgres; do echo waiting for database; sleep 1; done;' ]
+        env: {{- include "go-pkgsite.pgenv" . | nindent 8 }}
+        command: [sh, -c, 'until pg_isready -U postgres; do echo waiting for database; sleep 1; done;']
 
       # Create DB if it doesn't exist
       - name: create-db
         image: mxkh/go-pkgsite
-        env:
-        {{- include "go-pkgsite.env" . | nindent 8 }}
-        command: [ ./db, create ]
+        env: {{- include "go-pkgsite.env" . | nindent 8 }}
+        command: [./db, create]
 
       # Migrate DB schema
       - name: migrate-db
         image: mxkh/go-pkgsite
-        env:
-        {{- include "go-pkgsite.env" . | nindent 8 }}
+        env: {{- include "go-pkgsite.env" . | nindent 8 }}
         command:
         - ./migrate
         - -source=file:migrations
@@ -57,19 +43,17 @@ spec:
       # Pre-populate packages
       - name: seed-db
         image: mxkh/go-pkgsite
-        env:
-        {{- include "go-pkgsite.env" . | nindent 8 }}
+        env: {{- include "go-pkgsite.env" . | nindent 8 }}
         volumeMounts:
         - name: seed
           mountPath: /seed
           readOnly: true
-        command: [ ./seeddb, -bypass_license_check, -keep_going, -refetch, -seed=/seed/seed.txt ]
+        command: [./seeddb, -bypass_license_check, -keep_going, -refetch, -seed=/seed/seed.txt]
       {{- end }}
 
       containers:
       - name: frontend
         image: mxkh/go-pkgsite
-        imagePullPolicy: Always
         env:
         {{- if .Values.private }}
         - name: HTTP_PROXY
@@ -78,40 +62,51 @@ spec:
           value: http://localhost:8080
         {{- end }}
         {{- include "go-pkgsite.env" . | nindent 8 }}
-        command: [ ./frontend, -bypass_license_check, -host=:80, -local, -proxy_url=$(GO_MODULE_PROXY_URL) ]
+        command: [./frontend, -bypass_license_check, -host=:80, -local, -proxy_url=$(GO_MODULE_PROXY_URL)]
         ports:
         - name: http
           containerPort: 80
         startupProbe:
-          httpGet: { port: http }
+          httpGet: {port: http}
           periodSeconds: 1
           failureThreshold: 60
         livenessProbe:
-          httpGet: { port: http }
+          httpGet: {port: http}
           failureThreshold: 3
         readinessProbe:
-          httpGet: { port: http }
+          httpGet: {port: http}
           failureThreshold: 1
 
       {{- if .Values.private }}
       - name: netrc-proxy
         image: mxkh/go-pkgsite
-        imagePullPolicy: Always
         env:
         {{- include "go-pkgsite.env" . | nindent 8 }}
         volumeMounts:
         - name: netrc
-          mountPath: /netrc
+          mountPath: /etc/netrc
           readOnly: true
-        command: [ ./proxy, -host=:8080, -netrc=/netrc/.netrc ]
+        command: [./proxy, -host=:8080, -netrc=/etc/netrc/.netrc]
         startupProbe:
-          httpGet: { port: 8080 }
+          httpGet: {port: 8080}
           periodSeconds: 1
           failureThreshold: 30
         livenessProbe:
-          httpGet: { port: 8080 }
+          httpGet: {port: 8080}
           failureThreshold: 3
         readinessProbe:
-          httpGet: { port: 8080 }
+          httpGet: {port: 8080}
           failureThreshold: 1
+      {{- end }}
+
+      volumes:
+      - name: netrc
+        secret:
+          secretName: {{ .Release.Name }}
+          items: [{key: .netrc, path: .netrc}]
+      {{- if .Values.seed }}
+      - name: seed
+        secret:
+          secretName: {{ .Release.Name }}
+          items: [{key: seed.txt, path: seed.txt}]
       {{- end }}

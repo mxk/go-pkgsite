@@ -10,12 +10,7 @@ This [Helm] chart runs [golang/pkgsite][pkgsite] backed by [gomods/athens][athen
 
 ### Downloading dependencies
 
-Before this chart can be installed, you must download its dependencies:
-
-```
-helm repo add athens https://gomods.github.io/athens-charts
-helm dependencies build chart
-```
+Before this chart can be installed, you must download its dependencies: `helm dependencies build chart`
 
 ### Local deployment on Rancher Desktop
 
@@ -54,3 +49,9 @@ As of May 2024, [pkgsite] does not handle `.netrc` credentials, leading to [inva
 ### stdlib links
 
 The database must be manually populated with stdlib data in order to resolve those links. This is normally handled by pkgsite's `seeddb` command, but it seems to crash the PostgreSQL server due to `OOMKilled` error. It's not clear if this just requires a ton of RAM or if this is a configuration problem.
+
+### Athens chart
+
+This chart is not using the [official Athens chart][athens] because it does not provide a way of specifying a custom config file, and there is no way to use templates in environment variable values. This complicated the overall service configuration.
+
+[athens]: https://github.com/gomods/athens-charts

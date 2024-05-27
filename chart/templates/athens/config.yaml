@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-athens
+  labels:
+    {{- include "go-pkgsite.labels" . | nindent 4 }}
+data:
+  # Athens does not merge this config with default values, so default values
+  # must be set explicitly.
+  config.toml: |
+    GoBinary = "go"
+    GoEnv = "development"
+    {{- with .Values.private }}
+    GoBinaryEnvVars = ["GOPRIVATE={{ range $i, $v := . }}{{ if $i }},{{ end }}{{ $v.host }}{{ end }}"]
+    {{- end }}
+    GoGetWorkers = 10
+    ProtocolWorkers = 30
+    LogLevel = "warn"
+    LogFormat = "plain"
+    RobotsFile = "/config/robots.txt"
+    Timeout = 60
+    StorageType = "disk"
+    Port = ":80"
+    HomeTemplatePath = "/config/home.html"
+    NETRCPath = "/config/.netrc"
+    SumDBs = ["https://sum.golang.org"]
+    NoSumPatterns = [
+      {{- range .Values.private }}
+      {{ .host | printf "%s/*" | quote }},
+      {{- end }}
+    ]
+    DownloadMode = "file:/config/download.hcl"
+    NetworkMode = "strict"
+    SingleFlightType = "memory"
+    IndexType = "memory"
+    ShutdownTimeout = 60
+    [Storage]
+      [Storage.Disk]
+        RootPath = "/var/lib/athens"
+
+  download.hcl: |
+    downloadURL = {{ .Values.defaultProxy | quote }}
+    mode = "redirect"
+    {{- range .Values.private }}
+    download {{ .host | printf "%s/*" | quote }} {mode = "sync"}
+    {{- end }}
+
+  robots.txt: |
+    User-agent: *
+    Disallow: /

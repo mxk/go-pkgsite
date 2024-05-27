@@ -6,10 +6,6 @@ home: https://github.com/mxk/go-pkgsite
 sources: [ https://github.com/mxk/go-pkgsite ]
 
 dependencies:
-- name: athens-proxy
-  version: ~0.10.0
-  repository: https://gomods.github.io/athens-charts
-  alias: athens
 - name: postgresql
   version: ~15.2.5
   repository: oci://registry-1.docker.io/bitnamicharts
