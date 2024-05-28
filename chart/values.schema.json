@@ -49,10 +49,6 @@
       "items": {
         "type": "string"
       }
-    },
-    "athensVersion": {
-      "type": "string",
-      "description": "gomods/athens Docker image tag"
     }
   }
 }

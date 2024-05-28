@@ -24,10 +24,6 @@ private: []
 # seed specifies package names passed to seeddb to pre-seed the database.
 seed: [std@latest]
 
-# athensVersion is the gomods/athens Docker image tag:
-# https://hub.docker.com/r/gomods/athens/tags
-athensVersion: v0.14.0
-
 # postgresql is the PostgreSQL chart config:
 # https://github.com/bitnami/charts/tree/main/bitnami/postgresql
 postgresql:

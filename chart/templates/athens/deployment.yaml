@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: athens
-        image: 'gomods/athens:{{ .Values.athensVersion }}'
+        image: gomods/athens:v0.14.0
         volumeMounts:
         - {name: config, mountPath: /config, readOnly: true}
         - {name: storage, mountPath: /var/lib/athens}
