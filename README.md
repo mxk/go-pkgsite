@@ -8,12 +8,18 @@ This [Helm] chart runs [golang/pkgsite][pkgsite] backed by [gomods/athens][athen
 
 ## Setup
 
-### Local deployment on Rancher Desktop
+### Deployment
 
-1. Ensure that both Kubernetes and Traefik are enabled in [Rancher Desktop Preferences][prefs].
-2. Run and follow instructions: `helm upgrade -i go-pkgsite oci://registry-1.docker.io/mxkh/go-pkgsite`
+```
+helm upgrade -i go-pkgsite oci://registry-1.docker.io/mxkh/go-pkgsite
+```
 
-[prefs]: https://docs.rancherdesktop.io/ui/preferences/kubernetes/
+See [chart/values.yaml][values] for customization options.
+
+If deploying on Rancher Desktop, ensure that both Kubernetes and Traefik are enabled in [preferences].
+
+[values]: https://github.com/mxk/go-pkgsite/blob/main/chart/values.yaml
+[preferences]: https://docs.rancherdesktop.io/ui/preferences/kubernetes/
 
 ### Private server credentials
 
