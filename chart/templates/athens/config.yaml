@@ -36,7 +36,7 @@ data:
     ShutdownTimeout = 60
     [Storage]
       [Storage.Disk]
-        RootPath = "/var/lib/athens"
+      RootPath = "/var/lib/athens"
 
   download.hcl: |
     downloadURL = {{ .Values.defaultProxy | quote }}

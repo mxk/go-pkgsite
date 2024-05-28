@@ -14,19 +14,17 @@ spec:
       labels:
         {{- include "go-pkgsite.labels" . | nindent 8 }}
         app.kubernetes.io/component: athens
+      annotations:
+        checksum/config: {{ include (print .Template.BasePath "/athens/config.yaml") . | fromYaml | dig "data" "" | toYaml | sha256sum }}
+        checksum/netrc: {{ include (print .Template.BasePath "/secret.yaml") . | fromYaml | dig "stringData" ".netrc" "" | toYaml | sha256sum }}
     spec:
       containers:
       - name: athens
         image: 'gomods/athens:{{ .Values.athensVersion }}'
-        ports:
-        - name: http
-          containerPort: 80
         volumeMounts:
-        - name: config
-          mountPath: /config
-          readOnly: true
-        - name: storage
-          mountPath: /var/lib/athens
+        - {name: config, mountPath: /config, readOnly: true}
+        - {name: storage, mountPath: /var/lib/athens}
+        ports: [{name: http, containerPort: 80}]
         startupProbe:
           httpGet: {path: /healthz, port: http}
           periodSeconds: 1

@@ -14,6 +14,8 @@ spec:
       labels:
         {{- include "go-pkgsite.labels" . | nindent 8 }}
         app.kubernetes.io/component: pkgsite
+      annotations:
+        checksum/secret: {{ include (print .Template.BasePath "/secret.yaml") . | fromYaml | dig "stringData" "" | toYaml | sha256sum }}
     spec:
       initContainers:
 
@@ -44,10 +46,7 @@ spec:
       - name: seed-db
         image: mxkh/go-pkgsite
         env: {{- include "go-pkgsite.env" . | nindent 8 }}
-        volumeMounts:
-        - name: seed
-          mountPath: /seed
-          readOnly: true
+        volumeMounts: [{name: seed, mountPath: /seed, readOnly: true}]
         command: [./seeddb, -bypass_license_check, -keep_going, -refetch, -seed=/seed/seed.txt]
       {{- end }}
 
@@ -56,16 +55,12 @@ spec:
         image: mxkh/go-pkgsite
         env:
         {{- if .Values.private }}
-        - name: HTTP_PROXY
-          value: http://localhost:8080
-        - name: HTTPS_PROXY
-          value: http://localhost:8080
+        - {name: HTTP_PROXY, value: http://localhost:8080}
+        - {name: HTTPS_PROXY, value: http://localhost:8080}
         {{- end }}
         {{- include "go-pkgsite.env" . | nindent 8 }}
         command: [./frontend, -bypass_license_check, -host=:80, -local, -proxy_url=$(GO_MODULE_PROXY_URL)]
-        ports:
-        - name: http
-          containerPort: 80
+        ports: [{name: http, containerPort: 80}]
         startupProbe:
           httpGet: {port: http}
           periodSeconds: 1
@@ -80,12 +75,7 @@ spec:
       {{- if .Values.private }}
       - name: netrc-proxy
         image: mxkh/go-pkgsite
-        env:
-        {{- include "go-pkgsite.env" . | nindent 8 }}
-        volumeMounts:
-        - name: netrc
-          mountPath: /etc/netrc
-          readOnly: true
+        volumeMounts: [{name: netrc, mountPath: /etc/netrc, readOnly: true}]
         command: [./proxy, -host=:8080, -netrc=/etc/netrc/.netrc]
         startupProbe:
           httpGet: {port: 8080}
