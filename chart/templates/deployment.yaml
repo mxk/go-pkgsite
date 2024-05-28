@@ -24,20 +24,20 @@ spec:
         image: {{ include "postgresql.v1.image" .Subcharts.postgresql }}
         env:
         - name: PGHOST
-          value: "{{ include "postgresql.v1.primary.fullname" .Subcharts.postgresql }}"
+          value: '{{ include "postgresql.v1.primary.fullname" .Subcharts.postgresql }}'
         - name: PGPASSWORD
           {{- include "go-pkgsite.pgpasswd" . | nindent 10 }}
         command: [sh, -c, 'until pg_isready -U postgres; do echo waiting for database; sleep 1; done;']
 
       # Create DB if it doesn't exist
       - name: create-db
-        image: mxkh/go-pkgsite
+        image: &go-pkgsite 'mxkh/go-pkgsite:{{ .Chart.Version }}'
         env: {{- include "go-pkgsite.env" . | nindent 8 }}
         command: [./db, create]
 
       # Migrate DB schema
       - name: migrate-db
-        image: mxkh/go-pkgsite
+        image: *go-pkgsite
         env: {{- include "go-pkgsite.env" . | nindent 8 }}
         command:
         - ./migrate
@@ -48,7 +48,7 @@ spec:
       {{- if .Values.seed }}
       # Pre-populate packages
       - name: seed-db
-        image: mxkh/go-pkgsite
+        image: *go-pkgsite
         env: {{- include "go-pkgsite.env" . | nindent 8 }}
         volumeMounts: [{name: seed, mountPath: /seed, readOnly: true}]
         command: [./seeddb, -bypass_license_check, -keep_going, -refetch, -seed=/seed/seed.txt]
@@ -56,7 +56,7 @@ spec:
 
       containers:
       - name: frontend
-        image: mxkh/go-pkgsite
+        image: *go-pkgsite
         env:
         {{- if .Values.private }}
         - {name: HTTP_PROXY, value: http://localhost:8080}
@@ -78,7 +78,7 @@ spec:
 
       {{- if .Values.private }}
       - name: netrc-proxy
-        image: mxkh/go-pkgsite
+        image: *go-pkgsite
         volumeMounts: [{name: netrc, mountPath: /etc/netrc, readOnly: true}]
         command: [./proxy, -host=:8080, -netrc=/etc/netrc/.netrc]
         startupProbe:

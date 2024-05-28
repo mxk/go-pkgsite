@@ -1,7 +1,7 @@
 apiVersion: v2
 name: go-pkgsite
 description: Private pkg.go.dev documentation server
-version: 0.1.0
+version: 1.0.0
 home: https://github.com/mxk/go-pkgsite
 sources: [ https://github.com/mxk/go-pkgsite ]
 
