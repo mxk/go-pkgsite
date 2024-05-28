@@ -16,13 +16,6 @@ valueFrom:
     key: {{ include "postgresql.v1.adminPasswordKey" .Subcharts.postgresql }}
 {{- end }}
 
-{{- define "go-pkgsite.pgenv" -}}
-- name: PGHOST
-  value: "{{ include "postgresql.v1.primary.fullname" .Subcharts.postgresql }}"
-- name: PGPASSWORD
-  {{- include "go-pkgsite.pgpasswd" . | nindent 2 }}
-{{- end }}
-
 {{- define "go-pkgsite.env" -}}
 - name: GO_DISCOVERY_DATABASE_HOST
   value: {{ include "postgresql.v1.primary.fullname" .Subcharts.postgresql }}

@@ -22,7 +22,11 @@ spec:
       # Wait until PostgreSQL is ready
       - name: wait-for-db
         image: {{ include "postgresql.v1.image" .Subcharts.postgresql }}
-        env: {{- include "go-pkgsite.pgenv" . | nindent 8 }}
+        env:
+        - name: PGHOST
+          value: "{{ include "postgresql.v1.primary.fullname" .Subcharts.postgresql }}"
+        - name: PGPASSWORD
+          {{- include "go-pkgsite.pgpasswd" . | nindent 10 }}
         command: [sh, -c, 'until pg_isready -U postgres; do echo waiting for database; sleep 1; done;']
 
       # Create DB if it doesn't exist
