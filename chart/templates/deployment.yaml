@@ -31,7 +31,7 @@ spec:
 
       # Create DB if it doesn't exist
       - name: create-db
-        image: &go-pkgsite 'mxkh/go-pkgsite:{{ .Chart.Version }}'
+        image: &go-pkgsite 'mxkh/go-pkgsite:{{ .Chart.Version }}-alpine'
         env: {{- include "go-pkgsite.env" . | nindent 8 }}
         command: [./db, create]
 

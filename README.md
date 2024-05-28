@@ -53,6 +53,7 @@ TODO: Automate
 1. Update dependencies: `helm dependency update chart`
 2. Bump version in `chart/Chart.yaml`.
 3. Create and tag release commit.
-4. Rebuild Docker image: `docker build --no-cache -t mxkh/go-pkgsite -t mxkh/go-pkgsite:<version> .`
-5. Push Docker image: `docker push mxkh/go-pkgsite mxkh/go-pkgsite:<version>`
+4. Rebuild Docker image: `docker build --no-cache -t mxkh/go-pkgsite -t mxkh/go-pkgsite:<version>-alpine .`
+   * Version tag must have a suffix to differentiate it from the OCI Helm package.
+5. Push Docker image: `docker push mxkh/go-pkgsite mxkh/go-pkgsite:<version>-alpine`
 6. Package and push chart: `helm package chart && helm push go-pkgsite-*.tgz oci://registry-1.docker.io/mxkh`
