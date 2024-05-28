@@ -1,3 +1,4 @@
 /chart/charts/
 /values.yaml
 *.pem
+*.tgz
