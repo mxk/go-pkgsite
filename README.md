@@ -8,14 +8,10 @@ This [Helm] chart runs [golang/pkgsite][pkgsite] backed by [gomods/athens][athen
 
 ## Setup
 
-### Downloading dependencies
-
-Before this chart can be installed, you must download its dependencies: `helm dependencies build chart`
-
 ### Local deployment on Rancher Desktop
 
 1. Ensure that both Kubernetes and Traefik are enabled in [Rancher Desktop Preferences][prefs].
-2. Run and follow instructions: `helm upgrade -i go-pkgsite chart`
+2. Run and follow instructions: `helm upgrade -i go-pkgsite oci://registry-1.docker.io/mxkh/go-pkgsite`
 
 [prefs]: https://docs.rancherdesktop.io/ui/preferences/kubernetes/
 
@@ -32,11 +28,13 @@ private:
   username: mytoken
 ```
 
-To deploy: `helm upgrade -i go-pkgsite chart -f values.yaml`
+To deploy: `helm upgrade -i go-pkgsite oci://registry-1.docker.io/mxkh/go-pkgsite -f values.yaml`
+
+To avoid storing passwords in `values.yaml`, provide them on the command line using `--set-string private[0].password=...`.
 
 ### Ingress TLS
 
-Ingress TLS key and certificate can be configured via: `helm upgrade -i go-pkgsite chart -f values.yaml --set-file tlsKey=key.pem,tlsCrt=crt.pem`
+Ingress TLS key and certificate can be configured via: `helm upgrade -i go-pkgsite oci://registry-1.docker.io/mxkh/go-pkgsite -f values.yaml --set-file tlsKey=key.pem,tlsCrt=crt.pem`
 
 ## Known Issues
 
